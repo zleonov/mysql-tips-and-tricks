@@ -11,12 +11,13 @@ public final class LoggingUtilities {
     private LoggingUtilities() {
     }
 
-    public static void ensureLogLevel(final Logger logger, final Level level) {
+    public static void ensureLogLevel(Logger logger, final Level level) {
 
-        setLogLevel(logger, level);
-
-        for (Logger current = logger; current != null && current.getUseParentHandlers(); current = current.getParent())
-            setLogLevel(current, level);
+        for (;;) {
+            setLogLevel(logger, level);
+            if (!logger.getUseParentHandlers() || (logger = logger.getParent()) == null)
+                break;
+        }
     }
 
     private static void setLogLevel(final Logger logger, final Level level) {
