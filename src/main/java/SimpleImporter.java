@@ -38,7 +38,7 @@ public class SimpleImporter {
 
         try (final Connection conn = DriverManager.getConnection(DATABASE, USERNAME, PASSWORD)) {
             JDBCUtilities.truncateTables(conn, "dept_emp", "emp_salary", "departments", "employees");
-            
+
             watch.start();
 
             importDepartments(conn);
@@ -109,12 +109,12 @@ public class SimpleImporter {
                 if (line.startsWith("#"))
                     continue;
 
-                final List<String> parts = SPLITTER.splitToList(line);
-                final String first = parts.get(0);
-                final String last = parts.get(1);
-                final LocalDate birthday = LocalDate.parse(parts.get(2));
-                final String gender = parts.get(3);
-                final LocalDate hired = LocalDate.parse(parts.get(4));
+                final List<String> parts    = SPLITTER.splitToList(line);
+                final String       first    = parts.get(0);
+                final String       last     = parts.get(1);
+                final LocalDate    birthday = LocalDate.parse(parts.get(2));
+                final String       gender   = parts.get(3);
+                final LocalDate    hired    = LocalDate.parse(parts.get(4));
 
                 JDBCUtilities.setParameters(selectEmp, first, last);
 
@@ -165,13 +165,13 @@ public class SimpleImporter {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 if (line.startsWith("#"))
                     continue;
-                
+
                 final List<String> parts = SPLITTER.splitToList(line);
-                final String dept = parts.get(0);
-                final String first = parts.get(1);
-                final String last = parts.get(2);
-                final LocalDate from = LocalDate.parse(parts.get(3));
-                final LocalDate to = LocalDate.parse(parts.get(4));
+                final String       dept  = parts.get(0);
+                final String       first = parts.get(1);
+                final String       last  = parts.get(2);
+                final LocalDate    from  = LocalDate.parse(parts.get(3));
+                final LocalDate    to    = LocalDate.parse(parts.get(4));
 
                 selectDeptId.setString(1, dept);
                 JDBCUtilities.setParameters(selectEmpId, first, last);
@@ -180,7 +180,7 @@ public class SimpleImporter {
                     deptIdRs.next();
                     empIdRs.next();
                     final int deptId = deptIdRs.getInt(1);
-                    final int empId = empIdRs.getInt(1);
+                    final int empId  = empIdRs.getInt(1);
 
                     JDBCUtilities.setParameters(selectDeptEmp, deptId, empId);
 
@@ -230,13 +230,13 @@ public class SimpleImporter {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 if (line.startsWith("#"))
                     continue;
-                
-                final List<String> parts = SPLITTER.splitToList(line);
-                final String first = parts.get(0);
-                final String last = parts.get(1);
-                final int salary = Integer.parseInt(parts.get(2));
-                final LocalDate from = LocalDate.parse(parts.get(3));
-                final LocalDate to = LocalDate.parse(parts.get(4));
+
+                final List<String> parts  = SPLITTER.splitToList(line);
+                final String       first  = parts.get(0);
+                final String       last   = parts.get(1);
+                final int          salary = Integer.parseInt(parts.get(2));
+                final LocalDate    from   = LocalDate.parse(parts.get(3));
+                final LocalDate    to     = LocalDate.parse(parts.get(4));
 
                 JDBCUtilities.setParameters(selectEmpId, first, last);
 
@@ -289,12 +289,12 @@ public class SimpleImporter {
     private static void printStats(final Connection conn) throws SQLException {
 
         System.out.println(String.format("|-------------|---------------|-----------------|"));
-        System.out.println(String.format("| %s | %s | %s |", new Object[] { "table      ", "total records", "updated records", 7 }));
+        System.out.println(String.format("| %s | %s | %s |", new Object[] { "table      ", "total records", "updated records", 7 }));ok
         System.out.println(String.format("|-------------|---------------|-----------------|"));
         try (final Statement stmt = conn.createStatement(); final ResultSet rs = stmt.executeQuery(STATS_QUERY)) {
             while (rs.next()) {
-                final String table = rs.getString(1);
-                final Integer total = rs.getInt(2);
+                final String  table   = rs.getString(1);
+                final Integer total   = rs.getInt(2);
                 final Integer updated = rs.getInt(3);
                 System.out.println(String.format("| %s | %s | %s |", new Object[] { Strings.padEnd(table, 11, ' '), Strings.padEnd(total.toString(), 13, ' '), Strings.padEnd(updated.toString(), 15, ' ') }));
                 System.out.println(String.format("|-------------|---------------|-----------------|"));
