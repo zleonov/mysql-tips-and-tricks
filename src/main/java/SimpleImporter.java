@@ -289,7 +289,7 @@ public class SimpleImporter {
     private static void printStats(final Connection conn) throws SQLException {
 
         System.out.println(String.format("|-------------|---------------|-----------------|"));
-        System.out.println(String.format("| %s | %s | %s |", new Object[] { "table      ", "total records", "updated records", 7 }));ok
+        System.out.println(String.format("| %s | %s | %s |", new Object[] { "table      ", "total records", "updated records", 7 }));
         System.out.println(String.format("|-------------|---------------|-----------------|"));
         try (final Statement stmt = conn.createStatement(); final ResultSet rs = stmt.executeQuery(STATS_QUERY)) {
             while (rs.next()) {
