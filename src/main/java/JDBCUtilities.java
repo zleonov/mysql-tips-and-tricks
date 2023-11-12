@@ -1,6 +1,9 @@
+import java.io.IOException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -43,5 +46,18 @@ public class JDBCUtilities {
         for (final Object value : values)
             pstmt.setObject(idx++, value); // arbitrary penalty compared to using specific setXXXX methods
         return pstmt;
+    }
+
+    public static void truncateTables(final Connection conn, final String... tables) throws SQLException, IOException {
+        try (final Statement stmt = conn.createStatement()) {
+            stmt.execute("SET FOREIGN_KEY_CHECKS=0");
+
+            for (final String table : tables) {
+                System.out.println("TRUNCATE " + table);
+                stmt.execute("TRUNCATE " + table);
+            }
+
+            stmt.execute("SET FOREIGN_KEY_CHECKS=1");
+        }
     }
 }

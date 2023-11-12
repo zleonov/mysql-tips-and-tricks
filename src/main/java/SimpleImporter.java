@@ -14,17 +14,12 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 
 public class SimpleImporter {
-
-    private static final Logger logger = Logger.getLogger(SimpleImporter.class.getName());
-
     private static final Splitter SPLITTER = Splitter.on(',');
 
     private static final Path CSV_DIR = Paths.get("res/small_csv");
@@ -36,13 +31,14 @@ public class SimpleImporter {
     private static final int STEP_SIZE = 500; // progress logging step size
 
     public static void main(String... args) throws IOException, SQLException {
-        LoggingUtilities.ensureLogLevel(logger, Level.ALL);
 
         final Stopwatch watch = Stopwatch.createUnstarted();
 
-        logger.log(Level.INFO, "Connecting to {0}\n", DATABASE);
+        System.out.println(String.format("Connecting to %s\n", DATABASE));
 
         try (final Connection conn = DriverManager.getConnection(DATABASE, USERNAME, PASSWORD)) {
+            JDBCUtilities.truncateTables(conn, "dept_emp", "emp_salary", "departments", "employees");
+            
             watch.start();
 
             importDepartments(conn);
@@ -55,13 +51,13 @@ public class SimpleImporter {
             printStats(conn);
         }
 
-        logger.log(Level.INFO, "Finished in {0} seconds", watch.elapsed(TimeUnit.SECONDS));
+        System.out.println(String.format("Finished in %s seconds", watch.elapsed(TimeUnit.SECONDS)));
     }
 
     private static void importDepartments(final Connection conn) throws SQLException, IOException {
         final Path csv = Paths.get(CSV_DIR + "/departments.csv");
 
-        logger.log(Level.INFO, "Importing {0}", csv);
+        System.out.println(String.format("Importing %s", csv));
 
         int count = 0;
 
@@ -86,20 +82,20 @@ public class SimpleImporter {
                 count++;
 
                 if (count % STEP_SIZE == 0)
-                    logger.log(Level.FINE, "Processed {0} rows", count);
+                    System.out.println(String.format("Processed %s rows", count));
             }
 
             if (count % STEP_SIZE != 0)
-                logger.log(Level.FINE, "Processed {0} rows", count);
+                System.out.println(String.format("Processed %s rows", count));
 
-            logger.log(Level.INFO, "Finished importing {0}\n", csv);
+            System.out.println(String.format("Finished importing %s\n", csv));
         }
     }
 
     private static void importEmployees(final Connection conn) throws SQLException, IOException {
         final Path csv = Paths.get(CSV_DIR + "/employees.csv");
 
-        logger.log(Level.INFO, "Importing {0}", csv);
+        System.out.println(String.format("Importing %s", csv));
 
         int count = 0;
 
@@ -141,20 +137,20 @@ public class SimpleImporter {
                 count++;
 
                 if (count % STEP_SIZE == 0)
-                    logger.log(Level.FINE, "Processed {0} rows", count);
+                    System.out.println(String.format("Processed %s rows", count));
             }
 
             if (count % STEP_SIZE != 0)
-                logger.log(Level.FINE, "Processed {0} rows", count);
+                System.out.println(String.format("Processed %s rows", count));
 
-            logger.log(Level.INFO, "Finished importing {0}\n", csv);
+            System.out.println(String.format("Finished importing %s\n", csv));
         }
     }
 
     private static void importDeptEmp(final Connection conn) throws SQLException, IOException {
         final Path csv = Paths.get(CSV_DIR + "/dept_emp.csv");
 
-        logger.log(Level.INFO, "Importing {0}", csv);
+        System.out.println(String.format("Importing %s", csv));
 
         int count = 0;
 
@@ -207,20 +203,20 @@ public class SimpleImporter {
                 count++;
 
                 if (count % STEP_SIZE == 0)
-                    logger.log(Level.FINE, "Processed {0} rows", count);
+                    System.out.println(String.format("Processed %s rows", count));
             }
 
             if (count % STEP_SIZE != 0)
-                logger.log(Level.FINE, "Processed {0} rows", count);
+                System.out.println(String.format("Processed %s rows", count));
 
-            logger.log(Level.INFO, "Finished importing {0}\n", csv);
+            System.out.println(String.format("Finished importing %s\n", csv));
         }
     }
 
     private static void importEmpSalary(final Connection conn) throws SQLException, IOException {
         final Path csv = Paths.get(CSV_DIR + "/emp_salary.csv");
 
-        logger.log(Level.INFO, "Importing {0}", csv);
+        System.out.println(String.format("Importing %s", csv));
 
         int count = 0;
 
@@ -269,13 +265,13 @@ public class SimpleImporter {
                 count++;
 
                 if (count % STEP_SIZE == 0)
-                    logger.log(Level.FINE, "Processed {0} rows", count);
+                    System.out.println(String.format("Processed %s rows", count));
             }
 
             if (count % STEP_SIZE != 0)
-                logger.log(Level.FINE, "Processed {0} rows", count);
+                System.out.println(String.format("Processed %s rows", count));
 
-            logger.log(Level.INFO, "Finished importing {0}\n", csv);
+            System.out.println(String.format("Finished importing %s\n", csv));
         }
     }
 
@@ -292,16 +288,16 @@ public class SimpleImporter {
 
     private static void printStats(final Connection conn) throws SQLException {
 
-        logger.log(Level.INFO, "|-------------|---------------|-----------------|");
-        logger.log(Level.INFO, "| {0} | {1} | {2} |", new Object[] { "table      ", "total records", "updated records", 7 });
-        logger.log(Level.INFO, "|-------------|---------------|-----------------|");
+        System.out.println(String.format("|-------------|---------------|-----------------|"));
+        System.out.println(String.format("| %s | %s | %s |", new Object[] { "table      ", "total records", "updated records", 7 }));
+        System.out.println(String.format("|-------------|---------------|-----------------|"));
         try (final Statement stmt = conn.createStatement(); final ResultSet rs = stmt.executeQuery(STATS_QUERY)) {
             while (rs.next()) {
                 final String table = rs.getString(1);
                 final Integer total = rs.getInt(2);
                 final Integer updated = rs.getInt(3);
-                logger.log(Level.INFO, "| {0} | {1} | {2} |", new Object[] { Strings.padEnd(table, 11, ' '), Strings.padEnd(total.toString(), 13, ' '), Strings.padEnd(updated.toString(), 15, ' ') });
-                logger.log(Level.INFO, "|-------------|---------------|-----------------|");
+                System.out.println(String.format("| %s | %s | %s |", new Object[] { Strings.padEnd(table, 11, ' '), Strings.padEnd(total.toString(), 13, ' '), Strings.padEnd(updated.toString(), 15, ' ') }));
+                System.out.println(String.format("|-------------|---------------|-----------------|"));
             }
         }
     }
